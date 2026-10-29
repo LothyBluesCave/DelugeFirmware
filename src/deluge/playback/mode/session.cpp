@@ -35,6 +35,7 @@
 #include "model/song/clip_iterators.h"
 #include "model/song/song.h"
 #include "playback/playback_handler.h"
+#include "playback/section_sequence.h"
 #include "processing/engines/audio_engine.h"
 #include "processing/engines/cv_engine.h"
 #include "processing/sound/sound_instrument.h"
@@ -132,9 +133,24 @@ void Session::armNextSection(int32_t oldSection, int32_t numRepetitions) {
 	}
 	// grid mode - just go to the next section, no need to worry about what order they're in
 	else if (currentSong->sessionLayout == SessionLayoutType::SessionLayoutTypeGrid) {
-		if (oldSection < kMaxNumSections) {
-			userWantsToArmClipsToStartOrSolo(oldSection + 1, NULL, true, false, false, numRepetitions, false);
-			lastSectionArmed = oldSection + 1;
+		bool loopSong = currentSong->loopSong && playbackHandler.recording == RecordingMode::OFF
+		                && !audioRecorder.isCurrentlyResampling() && !stemExport.processStarted
+		                && !playbackHandler.stopOutputRecordingAtLoopEnd;
+		bool sectionPopulated[kMaxNumSections] = {};
+		if (loopSong) {
+			for (int32_t clipIndex = 0; clipIndex < currentSong->sessionClips.getNumElements(); ++clipIndex) {
+				Clip* clip = currentSong->sessionClips.getClipAtIndex(clipIndex);
+				if (clip->section < kMaxNumSections && clip->launchStyle != LaunchStyle::FILL) {
+					sectionPopulated[clip->section] = true;
+				}
+			}
+		}
+		int32_t newSection = nextSectionInSequence(oldSection, kMaxNumSections, loopSong, [&](int32_t section) {
+			return !loopSong || sectionPopulated[section];
+		});
+		if (newSection >= 0) {
+			userWantsToArmClipsToStartOrSolo(newSection, nullptr, true, false, false, numRepetitions, false);
+			lastSectionArmed = newSection;
 			return;
 		}
 	}

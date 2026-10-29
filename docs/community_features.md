@@ -342,6 +342,18 @@ Here is a list of features that have been added to the firmware as a list, group
 
 ### 4.1 - Song View Features
 
+#### Loop Song (Custom Build)
+
+- Press `SELECT` in Song or Arranger View and enable `SONG > LOOP SONG` (`LOOP` on 7SEG).
+  The setting is saved with each song and is off by default.
+- In Session Grid View, the final section returns to the first populated section after its configured repetitions.
+  Empty sections are skipped while looping is enabled. A section set to repeat indefinitely still holds until another
+  section is launched. Row View section progression is unchanged.
+- In Arranger View, playback returns to timeline position zero after the final clip ends, including any silence before
+  the first clip. The transport clock keeps running, and song and clip automation restart from the beginning.
+- Recording, resampling, and stem export retain their existing completion behavior. The Play button still stops playback.
+  For Grid View, set Loop Song before starting playback so that the next section is scheduled with the chosen setting.
+
 #### 4.1.1 - Compressors
 
 - ([#630]) In Song view, select `AFFECT ENTIRE` and the `SIDECHAIN`-related parameter button. Adjust the `UPPER` gold

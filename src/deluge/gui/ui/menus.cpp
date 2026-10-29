@@ -1239,6 +1239,9 @@ ActiveScaleMenu activeScaleMenu{STRING_FOR_ACTIVE_SCALES, ActiveScaleMenu::SONG}
 
 song_macros::Configure configureSongMacrosMenu{STRING_FOR_CONFIGURE_SONG_MACROS};
 
+ToggleBoolDyn loopSongMenu{STRING_FOR_LOOP_SONG, STRING_FOR_LOOP_SONG,
+                           []() -> bool* { return &currentSong->loopSong; }};
+
 // Root menu for Song View
 menu_item::Submenu soundEditorRootMenuSongView{
     STRING_FOR_SONG,
@@ -1248,6 +1251,7 @@ menu_item::Submenu soundEditorRootMenuSongView{
         &globalFXMenu,
         &swingIntervalMenu,
         &activeScaleMenu,
+        &loopSongMenu,
         &configureSongMacrosMenu,
         &stemExportMenu,
     },
