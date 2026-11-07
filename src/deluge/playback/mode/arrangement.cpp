@@ -323,7 +323,9 @@ justDoArp:
 	    && currentSong->loopSong && playbackHandler.recording == RecordingMode::OFF
 	    && !audioRecorder.isCurrentlyResampling() && !stemExport.processStarted
 	    && !playbackHandler.stopOutputRecordingAtLoopEnd) {
+		int32_t playbackStartScroll = arrangerView.xScrollWhenPlaybackStarted;
 		resetPlayPos(0);
+		arrangerView.xScrollWhenPlaybackStarted = playbackStartScroll;
 		playbackStartedAtPos = -playbackHandler.lastSwungTickActioned;
 		doTickForward(0);
 		return;
