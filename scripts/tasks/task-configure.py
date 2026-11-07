@@ -4,6 +4,7 @@ import importlib
 import os
 import subprocess
 from collections.abc import Sequence
+from pathlib import Path
 
 import util
 
@@ -30,6 +31,11 @@ def argparser() -> argparse.ArgumentParser:
         "-f", "--force", help="Forcibly (re)configure the project.", action="store_true"
     )
     parser.add_argument(
+        "--build-dir",
+        default="build",
+        help="Directory for the CMake build tree",
+    )
+    parser.add_argument(
         "-m",
         "--tag-metadata",
         help="Tag any builds with this configuration with a metadata suffix",
@@ -50,7 +56,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     (args, unknown_args) = argparser().parse_known_args(argv)
 
     project_root = util.get_git_root()
-    build_dir = project_root.absolute() / "build"
+    build_dir = Path(args.build_dir)
+    if not build_dir.is_absolute():
+        build_dir = project_root.absolute() / build_dir
     source_dir = project_root.absolute()
 
     if args.force:

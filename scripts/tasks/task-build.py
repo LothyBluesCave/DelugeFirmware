@@ -42,6 +42,11 @@ def argparser() -> argparse.ArgumentParser:
         "--type",
         help="The type of metadata tag (only applicable with -m, see `dbt configure -h` for options)",
     )
+    parser.add_argument(
+        "--build-dir",
+        default="build",
+        help="Directory containing or receiving the CMake build tree",
+    )
 
     parser.add_argument(
         "-m",
@@ -60,7 +65,11 @@ def argparser() -> argparse.ArgumentParser:
 def main(argv: Sequence[str] | None = None) -> int:
     (args, unknown_args) = argparser().parse_known_args(argv)
 
-    os.chdir(util.get_git_root())
+    project_root = util.get_git_root()
+    os.chdir(project_root)
+    build_dir = args.build_dir
+    if not os.path.isabs(build_dir):
+        build_dir = os.path.join(project_root, build_dir)
 
     if args.tag_metadata:
         configure_args = []
@@ -68,18 +77,20 @@ def main(argv: Sequence[str] | None = None) -> int:
             configure_args += ["-t", args.type]
         # configure with tagging
         result = importlib.import_module("task-configure").main(
-            ["-m"] + configure_args + unknown_args
+            ["-m", "--build-dir", build_dir] + configure_args + unknown_args
         )
         if result != 0:
             return result
 
-    elif not os.path.exists("build"):
-        result = importlib.import_module("task-configure").main()
+    elif not os.path.isfile(os.path.join(build_dir, "CMakeCache.txt")):
+        result = importlib.import_module("task-configure").main(
+            ["--build-dir", build_dir]
+        )
         if result != 0:
             return result
 
     build_args = []
-    build_args += ["--build", "build"]
+    build_args += ["--build", build_dir]
     build_args += ["--target", "deluge"]
 
     if args.config and args.config != "all":
