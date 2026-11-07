@@ -105,6 +105,8 @@ public:
 	bool switchToArrangementAtLaunchEvent;
 
 private:
+	bool automaticLoopWrapArmed = false;
+	bool automaticLoopSelfWrapArmed = false;
 	bool giveClipOpportunityToBeginLinearRecording(Clip* clip, int32_t clipIndex, int32_t buttonPressLatency);
 	void armClipToStopAction(Clip* clip);
 	void cancelArmingForClip(Clip* clip, int32_t* clipIndex);
